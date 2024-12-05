@@ -59,7 +59,7 @@ const ThesisProcedures = () => {
       case 'anexo11':
           return <Anexo11/>;
       case 'anexo30':
-          return <div>Hola soy Anexo 30</div>;
+          return <div>Hola anexo30s</div>;
       case 'extras':
           return <div>Hola soy los archisov de Tesis</div>;
       default:

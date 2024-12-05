@@ -1,51 +1,88 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 
 const Anexo11 = () => {
-  const [informeComiteEtica, setInformeComiteEtica] = useState(null);
-  const [dictamenAprobacionProyecto, setDictamenAprobacionProyecto] = useState(null);
-  const [userId, setUserId] = useState(''); // Obtener userId desde el contexto o props
+  const [documents, setDocuments] = useState([]);
+  const [informeEtica, setInformeEtica] = useState(null);
+  const [dictamenAprobacion, setDictamenAprobacion] = useState(null);
 
-  const handleFileChange = (e, setter) => {
-    setter(e.target.files[0]);
+  const handleFileChange = (e, setter) => setter(e.target.files[0]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newDocs = [];
+
+    if (informeEtica) {
+      newDocs.push({ name: 'Informe Ética', file: informeEtica.name });
+    }
+    if (dictamenAprobacion) {
+      newDocs.push({ name: 'Dictamen Aprobación Proyecto', file: dictamenAprobacion.name });
+    }
+
+    setDocuments([...documents, ...newDocs]);
+    setInformeEtica(null);
+    setDictamenAprobacion(null);
+    e.target.reset();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append('userId', userId);
-    formData.append('modalidad', 'Tesis');
-    formData.append('anexo11[informeComiteEtica][fileName]', informeComiteEtica.name);
-    formData.append('anexo11[informeComiteEtica][uploadDate]', new Date().toISOString());
-    formData.append('anexo11[informeComiteEtica][file]', informeComiteEtica);
-
-    formData.append('anexo11[dictamenAprobacionProyecto][fileName]', dictamenAprobacionProyecto.name);
-    formData.append('anexo11[dictamenAprobacionProyecto][uploadDate]', new Date().toISOString());
-    formData.append('anexo11[dictamenAprobacionProyecto][file]', dictamenAprobacionProyecto);
-
-    try {
-      const response = await axios.post('http://localhost:5000/api/v1/proyectos/crear', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      console.log('Proyecto creado:', response.data);
-    } catch (error) {
-      console.error('Error al crear el proyecto:', error);
-    }
+  const handleDelete = (index) => {
+    setDocuments(documents.filter((_, i) => i !== index));
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Informe Comité Ética:</label>
-        <input type="file" onChange={(e) => handleFileChange(e, setInformeComiteEtica)} required />
-      </div>
-      <div>
-        <label>Dictamen Aprobación Proyecto:</label>
-        <input type="file" onChange={(e) => handleFileChange(e, setDictamenAprobacionProyecto)} required />
-      </div>
-      <button type="submit">Enviar</button>
-    </form>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-6">Anexo 11 - Proyecto Tesis</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-lg font-medium">Informe Comité Ética:</label>
+          <input
+            type="file"
+            onChange={(e) => handleFileChange(e, setInformeEtica)}
+            className="mt-2 w-full p-2 border rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-lg font-medium">Dictamen Aprobación Proyecto:</label>
+          <input
+            type="file"
+            onChange={(e) => handleFileChange(e, setDictamenAprobacion)}
+            className="mt-2 w-full p-2 border rounded"
+          />
+        </div>
+
+        <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+          Enviar
+        </button>
+      </form>
+
+      <h2 className="text-2xl font-bold mt-10">Documentos Subidos</h2>
+      <table className="min-w-full bg-white border border-gray-300 mt-4">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="p-4 border">Nombre</th>
+            <th className="p-4 border">Archivo</th>
+            <th className="p-4 border">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {documents.map((doc, index) => (
+            <tr key={index} className="hover:bg-gray-100">
+              <td className="p-4 border">{doc.name}</td>
+              <td className="p-4 border">{doc.file}</td>
+              <td className="p-4 border">
+                <button
+                  onClick={() => handleDelete(index)}
+                  className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
