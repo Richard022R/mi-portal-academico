@@ -63,8 +63,7 @@ const ThesisProcedures = () => {
       case 'anexo30':
           return <Anexo30 userInfo={userInfo}/>;
       case 'extras':
-        return <div>Hola soy extras</div>
-          //return <Extras userInfo={userInfo}/>;
+          return <Extras userInfo={userInfo}/>;
       default:
         return <ProceduresTable procedures={thesisProcedures} />;
     }

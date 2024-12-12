@@ -141,7 +141,7 @@ const Sidebar = ({ userInfo, activeSection, onSectionChange, children }) => {
                           ? "Anexo 11 - PT"
                           : option === "anexo30"
                           ? "Anexo 30"
-                          : "Tesis"}
+                          : "Extras"}
                       </span>
                     </button>
                   ))
