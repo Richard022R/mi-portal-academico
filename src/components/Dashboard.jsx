@@ -52,7 +52,7 @@ const ThesisProcedures = () => {
   const renderContent = () => {
     switch(activeSection) {
       case 'inicio':
-        return <ProceduresTable procedures={thesisProcedures} />;
+        return <ProceduresTable userInfo={userInfo}/>;
       case 'tesis':
         return <div>Proceso de Tesis</div>;
       case 'ajustes':
