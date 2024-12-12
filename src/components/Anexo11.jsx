@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 
 const Anexo11 = ({ userInfo }) => {
   const [informeComiteEtica, setInformeComiteEtica] = useState(null);
-  const [dictamenAprobacionProyecto, setDictamenAprobacionProyecto] = useState(null);
+  const [dictamenAprobacionProyecto, setDictamenAprobacionProyecto] =
+    useState(null);
   const [tesisId, setTesisId] = useState("");
   const [documentos, setDocumentos] = useState([]);
 
@@ -83,11 +84,16 @@ const Anexo11 = ({ userInfo }) => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Crear Tesis con Documentos del Anexo 11</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        Crear Tesis con Documentos del Anexo 11
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="informeComiteEtica" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="informeComiteEtica"
+            className="block text-sm font-medium text-gray-700"
+          >
             Informe Comité de Ética:
           </label>
           <input
@@ -100,7 +106,10 @@ const Anexo11 = ({ userInfo }) => {
         </div>
 
         <div>
-          <label htmlFor="dictamenAprobacionProyecto" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="dictamenAprobacionProyecto"
+            className="block text-sm font-medium text-gray-700"
+          >
             Dictamen de Aprobación del Proyecto:
           </label>
           <input
@@ -134,10 +143,12 @@ const Anexo11 = ({ userInfo }) => {
             {Object.entries(documentos).map(([key, doc]) => (
               <tr key={key}>
                 <td className="px-4 py-2 border">{doc.fileName}</td>
-                <td className="px-4 py-2 border">{new Date(doc.uploadDate).toLocaleDateString()}</td>
+                <td className="px-4 py-2 border">
+                  {new Date(doc.uploadDate).toLocaleDateString()}
+                </td>
                 <td className="px-4 py-2 border">
                   <a
-                    href={`http://localhost:3000/${doc.fileUrl}`}
+                    href={`http://localhost:3000/api/v1/tesis/download/${tesisId}/${key}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-500 hover:underline"
