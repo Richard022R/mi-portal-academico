@@ -4,6 +4,7 @@ import LoginScreen from './components/LoginScreen';
 import RegisterScreen from './components/RegisterScreen';
 import ProtectedRoute from './components/ProtectedRoute'; // We'll create this
 import DashboardSecre from './components/Admin/DashboardSecre';
+import Usuario from './components/Admin/Usuario';
 import Dashboard from './components/Dashboard'; // Asumiendo que tienes un componente Dashboard
 
 function App() {

@@ -1,31 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import { Edit, Trash, Search } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Edit, Trash, Search } from "lucide-react";
+import EditUser from "./EditUser";
 
 const ProcedureTables = () => {
   const [procedures, setProcedures] = useState([]); // Datos originales
   const [filteredProcedures, setFilteredProcedures] = useState([]); // Datos filtrados
-  const [searchTerm, setSearchTerm] = useState(''); // Término de búsqueda
+  const [searchTerm, setSearchTerm] = useState(""); // Término de búsqueda
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
 
   // Función para buscar usuarios
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/v1/users');
+      const response = await fetch("http://localhost:3000/api/v1/users");
       if (!response.ok) {
-        throw new Error('Error al obtener los datos del servidor');
+        throw new Error("Error al obtener los datos del servidor");
       }
       const result = await response.json();
-      const users = result.data.map(user => ({
-        id: user._id,
-        code: user.code,
-        dni: user.documentNumber,
-        name: `${user.name} ${user.fatherLastName} ${user.motherLastName}`,
-        modality: user.typeTesis,
-      }));
+      const users = result.data
+        .filter((user) => user.role === "user") // Filtrar solo usuarios con rol "user"
+        .map((user) => ({
+          id: user._id,
+          code: user.code,
+          dni: user.documentNumber,
+          name: `${user.name} ${user.fatherLastName} ${user.motherLastName}`,
+          modality: user.typeTesis,
+        }));
       setProcedures(users);
       setFilteredProcedures(users);
     } catch (error) {
-      console.error('Error al obtener los usuarios:', error);
+      console.error("Error al obtener los usuarios:", error);
     }
+  };
+
+  const handleEditClick = (userId) => {
+    setEditingUserId(userId);
+    localStorage.setItem("editingUserId", userId);
+    setIsModalOpen(true);
   };
 
   // Manejar cambios en el input de búsqueda
@@ -49,10 +60,23 @@ const ProcedureTables = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <EditUser
+              userId={editingUserId}
+              onClose={() => setIsModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Lista de Tesis</h1>
-          <p className="text-gray-600">Gestión de Tesis y Suficiencia Profesional</p>
+          <p className="text-gray-600">
+            Gestión de Tesis y Suficiencia Profesional
+          </p>
         </div>
       </div>
 
@@ -82,16 +106,23 @@ const ProcedureTables = () => {
           </thead>
           <tbody>
             {filteredProcedures.map((proc) => (
-              <tr key={proc.id} className="border-b hover:bg-gray-50 transition-colors">
+              <tr
+                key={proc.id}
+                className="border-b hover:bg-gray-50 transition-colors"
+              >
                 <td className="p-4">{proc.code}</td>
                 <td className="p-4">{proc.dni}</td>
                 <td className="p-4">{proc.name}</td>
                 <td className="p-4">{proc.modality}</td>
                 <td className="p-4">
                   <div className="flex space-x-2">
-                    <button className="text-blue-500 hover:text-blue-700">
+                    <button
+                      onClick={() => handleEditClick(proc.id)}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
                       <Edit className="h-5 w-5" />
                     </button>
+
                     <button className="text-red-500 hover:text-red-700">
                       <Trash className="h-5 w-5" />
                     </button>
