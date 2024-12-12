@@ -13,9 +13,8 @@ const Sidebars = ({ activeSection, onSectionChange, userInfo }) => {
 
   const menuItems = [
     { icon: Home, label: 'Inicio', section: 'inicio' },
-    { icon: Users, label: 'Gestión de Alumnos', section: 'alumnos' },
     { icon: FileText, label: 'Documentos', section: 'documentos' },
-    { icon: UserCheck, label: 'Matrículas', section: 'matriculas' }
+    { icon: Users, label: 'Gestión de Alumnos', section: 'alumnos' },
   ];
 
   return (

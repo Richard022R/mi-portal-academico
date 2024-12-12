@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 
 const Anexo11 = ({ userInfo }) => {
   const [informeComiteEtica, setInformeComiteEtica] = useState(null);
-  const [dictamenAprobacionProyecto, setDictamenAprobacionProyecto] =
-    useState(null);
-
+  const [dictamenAprobacionProyecto, setDictamenAprobacionProyecto] = useState(null);
   const [tesisId, setTesisId] = useState("");
+  const [documentos, setDocumentos] = useState([]);
 
   useEffect(() => {
     const fetchTesis = async () => {
@@ -27,36 +26,29 @@ const Anexo11 = ({ userInfo }) => {
     fetchTesis();
   }, [userInfo.id]);
 
-  //obtener los documentos subidos por el usuario al anexo 11 y guardarlos en un estado
-  const [documentos, setDocumentos] = useState([]);
-  console.log(tesisId);
-  const anexo11Path = `http://localhost:3000/api/v1/tesis/anexo11/${tesisId}`;
-  console.log(anexo11Path);
   useEffect(() => {
     const fetchDocumentos = async () => {
-        try {
-          const response = await fetch(anexo11Path);
-          const data = await response.json();
-          if (response.ok) {
-            setDocumentos(data.data);
-          } else {
-            console.error(data.message);
-          }
-        } catch (error) {
-          console.error("Error al obtener los documentos:", error);
+      if (!tesisId) return; // Espera a que `tesisId` esté disponible
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/v1/tesis/anexo11/${tesisId}`
+        );
+        const data = await response.json();
+        if (response.ok) {
+          setDocumentos(data.data);
+        } else {
+          console.error(data.message);
         }
+      } catch (error) {
+        console.error("Error al obtener los documentos:", error);
+      }
     };
-    
+
     fetchDocumentos();
   }, [tesisId]);
 
-  console.log(documentos, tesisId);
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Create FormData for file upload
     const formData = new FormData();
     formData.append("userId", userInfo.id);
 
@@ -69,17 +61,13 @@ const Anexo11 = ({ userInfo }) => {
     }
 
     try {
-      console.log(JSON.stringify(formData));
-
       const response = await fetch("http://localhost:3000/api/v1/tesis", {
         method: "POST",
         body: formData,
       });
 
       if (response.ok) {
-        const result = await response.json();
         alert("Tesis creada exitosamente");
-
         setInformeComiteEtica(null);
         setDictamenAprobacionProyecto(null);
         e.target.reset();
@@ -92,35 +80,14 @@ const Anexo11 = ({ userInfo }) => {
       alert("Ocurrió un error al enviar los documentos");
     }
   };
-  console.log("anexo 11", userInfo);
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">
-        Crear Tesis con Documentos del Anexo 11
-      </h1>
+      <h1 className="text-2xl font-bold mb-4">Crear Tesis con Documentos del Anexo 11</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label
-            htmlFor="userId"
-            className="block text-sm font-medium text-gray-700"
-          ></label>
-          <input
-            type="text"
-            id="userId"
-            value={userInfo.id}
-            onChange={(e) => setUserId(e.target.value)}
-            readOnly
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="informeComiteEtica"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="informeComiteEtica" className="block text-sm font-medium text-gray-700">
             Informe Comité de Ética:
           </label>
           <input
@@ -133,10 +100,7 @@ const Anexo11 = ({ userInfo }) => {
         </div>
 
         <div>
-          <label
-            htmlFor="dictamenAprobacionProyecto"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="dictamenAprobacionProyecto" className="block text-sm font-medium text-gray-700">
             Dictamen de Aprobación del Proyecto:
           </label>
           <input
@@ -155,15 +119,35 @@ const Anexo11 = ({ userInfo }) => {
           Subir Archivos
         </button>
       </form>
-      <section>
-        <table>
+
+      <section className="mt-6">
+        <h2 className="text-xl font-bold mb-2">Documentos Subidos</h2>
+        <table className="min-w-full bg-white border border-gray-200">
           <thead>
             <tr>
-              <th>Documento</th>
-              <th>Acciones</th>
+              <th className="px-4 py-2 border">Nombre del Documento</th>
+              <th className="px-4 py-2 border">Fecha de Subida</th>
+              <th className="px-4 py-2 border">Acciones</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+            {Object.entries(documentos).map(([key, doc]) => (
+              <tr key={key}>
+                <td className="px-4 py-2 border">{doc.fileName}</td>
+                <td className="px-4 py-2 border">{new Date(doc.uploadDate).toLocaleDateString()}</td>
+                <td className="px-4 py-2 border">
+                  <a
+                    href={`http://localhost:3000/${doc.fileUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    Descargar
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </section>
     </div>

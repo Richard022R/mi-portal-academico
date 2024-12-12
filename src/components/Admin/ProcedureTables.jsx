@@ -1,131 +1,109 @@
-import React, { useState } from 'react';
-import { 
-  Search, 
-  ChevronDown, 
-  FileText, 
-  Download 
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Edit, Trash, Search } from 'lucide-react';
 
-const ProceduresTables = ({ procedures }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProcedure, setSelectedProcedure] = useState(null);
+const ProcedureTables = () => {
+  const [procedures, setProcedures] = useState([]); // Datos originales
+  const [filteredProcedures, setFilteredProcedures] = useState([]); // Datos filtrados
+  const [searchTerm, setSearchTerm] = useState(''); // Término de búsqueda
 
-  // Filter procedures based on search term
-  const filteredProcedures = procedures.filter(proc => 
-    proc.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Handle procedure details view
-  const handleProcedureDetails = (procedure) => {
-    setSelectedProcedure(procedure);
+  // Función para buscar usuarios
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/v1/users');
+      if (!response.ok) {
+        throw new Error('Error al obtener los datos del servidor');
+      }
+      const result = await response.json();
+      const users = result.data.map(user => ({
+        id: user._id,
+        code: user.code,
+        dni: user.documentNumber,
+        name: `${user.name} ${user.fatherLastName} ${user.motherLastName}`,
+        modality: user.typeTesis,
+      }));
+      setProcedures(users);
+      setFilteredProcedures(users);
+    } catch (error) {
+      console.error('Error al obtener los usuarios:', error);
+    }
   };
+
+  // Manejar cambios en el input de búsqueda
+  const handleSearch = (event) => {
+    const value = event.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    // Filtrar procedimientos por código, DNI o nombre
+    const filtered = procedures.filter(
+      (procedure) =>
+        procedure.code.toLowerCase().includes(value) ||
+        procedure.dni.toLowerCase().includes(value) ||
+        procedure.name.toLowerCase().includes(value)
+    );
+    setFilteredProcedures(filtered);
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Trámites de Tesis</h1>
-          <p className="text-gray-600">Gestión y seguimiento de procedimientos</p>
+          <h1 className="text-2xl font-bold text-gray-800">Lista de Tesis</h1>
+          <p className="text-gray-600">Gestión de Tesis y Suficiencia Profesional</p>
         </div>
       </div>
 
-      {/* Search Input */}
+      {/* Input de Búsqueda */}
       <div className="mb-4 relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        <input 
+        <input
           type="text"
-          placeholder="Buscar trámites"
+          placeholder="Buscar por código, DNI, nombre o modalidad"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearch}
           className="w-full pl-10 pr-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Procedures Table */}
+      {/* Tabla de Trámites */}
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-100 border-b">
             <tr>
-              <th className="p-4 text-left text-gray-600">N° Trámite</th>
-              <th className="p-4 text-left text-gray-600">Nombre del Trámite</th>
-              <th className="p-4 text-left text-gray-600">Fecha</th>
-              <th className="p-4 text-left text-gray-600">Estado</th>
-              <th className="p-4 text-left text-gray-600">Documentos</th>
-              <th className="p-4 text-left text-gray-600">Acciones</th>
+              <th className="p-4 text-left text-gray-600">CÓDIGO</th>
+              <th className="p-4 text-left text-gray-600">DNI</th>
+              <th className="p-4 text-left text-gray-600">NOMBRE</th>
+              <th className="p-4 text-left text-gray-600">MODALIDAD</th>
+              <th className="p-4 text-left text-gray-600">ACCIONES</th>
             </tr>
           </thead>
           <tbody>
             {filteredProcedures.map((proc) => (
-              <tr 
-                key={proc.id} 
-                className="border-b hover:bg-gray-50 transition-colors"
-              >
-                <td className="p-4">{proc.id}</td>
+              <tr key={proc.id} className="border-b hover:bg-gray-50 transition-colors">
+                <td className="p-4">{proc.code}</td>
+                <td className="p-4">{proc.dni}</td>
                 <td className="p-4">{proc.name}</td>
-                <td className="p-4">{proc.date}</td>
+                <td className="p-4">{proc.modality}</td>
                 <td className="p-4">
-                  <span className={`
-                    px-3 py-1 rounded-full text-xs font-semibold
-                    ${proc.status === 'TRÁMITE FINALIZADO' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'}
-                  `}>
-                    {proc.status}
-                  </span>
-                </td>
-                <td className="p-4">
-                  {proc.documents.length > 0 ? (
-                    <div className="flex flex-col space-y-1">
-                      {proc.documents.map((doc, index) => (
-                        <a 
-                          key={index} 
-                          href="#" 
-                          className="flex items-center text-blue-600 hover:text-blue-800"
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          {doc}
-                        </a>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-gray-400">Sin documentos</span>
-                  )}
-                </td>
-                <td className="p-4">
-                  <button 
-                    onClick={() => handleProcedureDetails(proc)}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <ChevronDown className="h-5 w-5" />
-                  </button>
+                  <div className="flex space-x-2">
+                    <button className="text-blue-500 hover:text-blue-700">
+                      <Edit className="h-5 w-5" />
+                    </button>
+                    <button className="text-red-500 hover:text-red-700">
+                      <Trash className="h-5 w-5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      {/* Procedure Details Modal (optional) */}
-      {selectedProcedure && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-96">
-            <h2 className="text-xl font-bold mb-4">{selectedProcedure.name}</h2>
-            <div className="space-y-2">
-              <p><strong>ID:</strong> {selectedProcedure.id}</p>
-              <p><strong>Fecha:</strong> {selectedProcedure.date}</p>
-              <p><strong>Estado:</strong> {selectedProcedure.status}</p>
-            </div>
-            <button 
-              onClick={() => setSelectedProcedure(null)}
-              className="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default ProceduresTables;
+export default ProcedureTables;
