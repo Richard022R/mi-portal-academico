@@ -1,87 +1,111 @@
 import React, { useState } from 'react';
 
-const Anexo11 = () => {
-  const [documents, setDocuments] = useState([]);
-  const [informeEtica, setInformeEtica] = useState(null);
-  const [dictamenAprobacion, setDictamenAprobacion] = useState(null);
+const Anexo11 = ({ userInfo }) => {
+  const [informeComiteEtica, setInformeComiteEtica] = useState(null);
+  const [dictamenAprobacionProyecto, setDictamenAprobacionProyecto] = useState(null);
 
-  const handleFileChange = (e, setter) => setter(e.target.files[0]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newDocs = [];
 
-    if (informeEtica) {
-      newDocs.push({ name: 'Informe Ética', file: informeEtica.name });
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('userId', userInfo.id);
+    
+    if (informeComiteEtica) {
+      formData.append('informeComiteEtica', informeComiteEtica);
     }
-    if (dictamenAprobacion) {
-      newDocs.push({ name: 'Dictamen Aprobación Proyecto', file: dictamenAprobacion.name });
+    
+    if (dictamenAprobacionProyecto) {
+      formData.append('dictamenAprobacionProyecto', dictamenAprobacionProyecto);
     }
 
-    setDocuments([...documents, ...newDocs]);
-    setInformeEtica(null);
-    setDictamenAprobacion(null);
-    e.target.reset();
-  };
+    try {
+      console.log(JSON.stringify(formData))
 
-  const handleDelete = (index) => {
-    setDocuments(documents.filter((_, i) => i !== index));
-  };
+      const response = await fetch('http://localhost:3000/api/v1/tesis', {
+        method: 'POST',
+        body: formData,
+        // No need to set Content-Type header, it will be set automatically with FormData
+      });
 
+      if (response.ok) {
+        const result = await response.json();
+        alert('Tesis creada exitosamente');
+        // Reset form
+       
+        setInformeComiteEtica(null);
+        setDictamenAprobacionProyecto(null);
+        e.target.reset();
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message || 'No se pudo crear la tesis'}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Ocurrió un error al enviar los documentos');
+    }
+  };
+console.log("anexo 11",userInfo)
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Anexo 11 - Proyecto Tesis</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Crear Tesis con Documentos del Anexo 11</h1>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-lg font-medium">Informe Comité Ética:</label>
+          <label 
+            htmlFor="userId" 
+            className="block text-sm font-medium text-gray-700"
+          >
+          </label>
           <input
-            type="file"
-            onChange={(e) => handleFileChange(e, setInformeEtica)}
-            className="mt-2 w-full p-2 border rounded"
+            type="text"
+            id="userId"
+            value={userInfo.id}
+            onChange={(e) => setUserId(e.target.value)}
+            required
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
           />
         </div>
 
         <div>
-          <label className="block text-lg font-medium">Dictamen Aprobación Proyecto:</label>
+          <label 
+            htmlFor="informeComiteEtica" 
+            className="block text-sm font-medium text-gray-700"
+          >
+            Informe Comité de Ética:
+          </label>
           <input
             type="file"
-            onChange={(e) => handleFileChange(e, setDictamenAprobacion)}
-            className="mt-2 w-full p-2 border rounded"
+            id="informeComiteEtica"
+            onChange={(e) => setInformeComiteEtica(e.target.files[0])}
+            required
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
           />
         </div>
 
-        <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-          Enviar
+        <div>
+          <label 
+            htmlFor="dictamenAprobacionProyecto" 
+            className="block text-sm font-medium text-gray-700"
+          >
+            Dictamen de Aprobación del Proyecto:
+          </label>
+          <input
+            type="file"
+            id="dictamenAprobacionProyecto"
+            onChange={(e) => setDictamenAprobacionProyecto(e.target.files[0])}
+            required
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Subir Archivos
         </button>
       </form>
-
-      <h2 className="text-2xl font-bold mt-10">Documentos Subidos</h2>
-      <table className="min-w-full bg-white border border-gray-300 mt-4">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-4 border">Nombre</th>
-            <th className="p-4 border">Archivo</th>
-            <th className="p-4 border">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {documents.map((doc, index) => (
-            <tr key={index} className="hover:bg-gray-100">
-              <td className="p-4 border">{doc.name}</td>
-              <td className="p-4 border">{doc.file}</td>
-              <td className="p-4 border">
-                <button
-                  onClick={() => handleDelete(index)}
-                  className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
-                >
-                  Eliminar
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 };

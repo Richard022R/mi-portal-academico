@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import ProceduresTable from './ProceduresTable';
-import Ajuste from './Ajuste'
-import Anexo11 from './Anexo11'
+import Ajuste from './Ajuste';
+import Anexo11 from './Anexo11';
+import Anexo30 from './Anexo30';
+import Extras from './Extras';
 
 const ThesisProcedures = () => {
   const navigate = useNavigate();
@@ -22,23 +24,23 @@ const ThesisProcedures = () => {
   const thesisProcedures = [
     {
       id: 'T2024-001',
-      name: 'REVISIÓN INICIAL DE PROYECTO DE TESIS',
-      date: 'mar 15, 2024',
+      name: 'REVISIÓN INICIAL DEL ANEXO 11',
+      date: 'nov 15, 2024',
       status: 'TRÁMITE FINALIZADO',
-      documents: ['proyecto_tesis.pdf', 'carta_asesor.pdf']
+      documents: ['Informe_Etica.pdf', 'Dictamen_Aprobación_Proyecto.pdf']
     },
     {
       id: 'T2024-002',
-      name: 'DESIGNACIÓN DE JURADO EVALUADOR',
-      date: 'abr 05, 2024',
+      name: 'REVISION INICIAL DEL ANEXO 30',
+      date: 'nov 29, 2024',
       status: 'TRÁMITE EN PROCESO',
       documents: ['solicitud_jurado.pdf']
     },
     {
       id: 'T2024-003',
-      name: 'SUSTENTACIÓN DE TESIS',
-      date: 'may 20, 2024',
-      status: 'PENDIENTE',
+      name: 'ARCHIVOS EXTRAS DE TESIS',
+      date: 'nov 20, 2024',
+      status: 'TRÁMITE EN PROCESO',
       documents: []
     }
   ];
@@ -57,11 +59,12 @@ const ThesisProcedures = () => {
           console.log(userInfo)
           return <Ajuste userInfo={userInfo} setUserInfo={setUserInfo} />;
       case 'anexo11':
-          return <Anexo11/>;
+          return <Anexo11 userInfo={userInfo}/>;
       case 'anexo30':
-          return <div>Hola anexo30s</div>;
+          return <Anexo30 userInfo={userInfo}/>;
       case 'extras':
-          return <div>Hola soy los archisov de Tesis</div>;
+        return <div>Hola soy extras</div>
+          //return <Extras userInfo={userInfo}/>;
       default:
         return <ProceduresTable procedures={thesisProcedures} />;
     }
@@ -71,15 +74,16 @@ const ThesisProcedures = () => {
     <div className="flex h-screen">
       <Sidebar 
         userInfo={{
-          nombre: userInfo?.nombreCompleto || userInfo?.nombre,
-          codigo: userInfo?.codigo,
-          email: userInfo?.email,
-          typeTesis: userInfo?.typeTesis
+          nombre: userInfo?.nombreCompleto || userInfo?.nombre || "Usuario Anónimo",
+          codigo: userInfo?.codigo || "Sin código",
+          email: userInfo?.email || "Sin email",
+          typeTesis: userInfo?.typeTesis || "Desconocido",
+          id: userInfo?.id
         }}
         activeSection={activeSection}
         onSectionChange={handleSectionChange}
       />
-      <div className="flex-1 p-6">
+      <div className="flex-1 ml-64 p-6 overflow-auto">
         {renderContent()}
       </div>
     </div>
