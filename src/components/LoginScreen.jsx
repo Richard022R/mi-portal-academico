@@ -22,13 +22,13 @@ const LoginScreen = () => {
       });
   
       let data = await response.json();
-     
+  
       if (!response.ok) {
         throw new Error(data.message || 'Error en el inicio de sesión');
       }
-    
+  
       data = data["user"];
-      localStorage.setItem('userInfo', JSON.stringify({
+      const userInfo = {
         id: data._id,
         nombre: data.name || '',
         apellidoPaterno: data.fatherLastName || '',
@@ -37,10 +37,18 @@ const LoginScreen = () => {
         email: email,
         codigo: data.code || '',
         numeroDocumento: data.documentNumber || '',
-        typeTesis: data.typeTesis || ''
-      }));
-
-      navigate('/dashboard');
+        typeTesis: data.typeTesis || '',
+        role: data.role || '', // Aquí obtenemos el rol
+      };
+  
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+  
+      // Redirigir dependiendo del rol
+      if (userInfo.role === 'admin') {
+        navigate('/Secretaria'); // Ruta para el panel de administración
+      } else {
+        navigate('/dashboard'); // Ruta para usuarios regulares
+      }
     } catch (error) {
       setLoginError(error.message || 'Error en el inicio de sesión');
       console.error('Error en el inicio de sesión:', error);
