@@ -20,7 +20,7 @@ const Anexo30 = ({ userInfo }) => {
     };
 
     fetchTesis();
-  }, [userInfo.id]);
+  }, [userInfo.id]); 
 
   const handleSubmit = async (event) => {
     event.preventDefault();
